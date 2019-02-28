@@ -54,6 +54,7 @@ public class Solution2 {
         List<String> photoIds = photos.stream().map(it -> it.id).collect(Collectors.toList());
         Photo currentPhoto = photos.iterator().next();
         addSlide(currentPhoto);
+        photoIds.remove(0);
         int maxSelectionSize = 250;
 
         while (photos.size() > maxSelectionSize) {
@@ -78,7 +79,7 @@ public class Solution2 {
             photoIds.remove(bestIndex);
             addSlide(currentPhoto);
 
-            if (photos.size() % 200 == 0) {
+            if (photos.size() % 500 == 0) {
                 System.out.println(String.format("%d photos left", photos.size()));
             }
         }

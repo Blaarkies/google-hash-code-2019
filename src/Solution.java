@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,8 +16,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.lang.Math.min;
-
 public class Solution {
 
     private static final String HORIZONTAL = "H";
@@ -26,9 +25,8 @@ public class Solution {
     Map<String, Solution.Photo> photosMap = new LinkedHashMap<>();
 
     public Solution(Scanner input) {
+        List<Solution.Photo> verticalPhotos = new ArrayList<>();
         int picCount = input.nextInt();
-
-        List<Solution.Photo> photos = new ArrayList<>(picCount);
 
         for (int i = 0; i < picCount; i++) {
             String orientation = input.next();
@@ -37,15 +35,17 @@ public class Solution {
             List<String> tags = Arrays.asList(input.nextLine().trim().split(" "));
 
             Solution.Photo photo = new Solution.Photo(String.valueOf(i), orientation, tags);
-            photos.add(photo);
+
+            if (photo.orientation.equals(HORIZONTAL)) {
+                photos.add(photo);
+            } else {
+                verticalPhotos.add(photo);
+            }
+
             photosMap.put(photo.getId(), photo);
         }
 
         Collections.shuffle(photos);
-
-        this.photos = photos.stream().filter(it -> it.orientation.equals(HORIZONTAL)).collect(Collectors.toList());
-
-
     }
 
     public List<String> solve() {
@@ -57,7 +57,7 @@ public class Solution {
         while (photos.size() > maxSelectionSize) {
             int bestScore = Integer.MIN_VALUE;
             int bestIndex = 0;
-            String bestId =  photoIds.get(0);
+            String bestId = photoIds.get(0);
 
             for (int i = 0; i < maxSelectionSize; ++i) {
                 int selectedIndex = ThreadLocalRandom.current().nextInt(photoIds.size());
@@ -164,6 +164,14 @@ public class Solution {
         String id;
         String orientation;
         List<String> tags;
+
+        public Photo(Photo a, Photo b) {
+            id = a.id + " " + b.id;
+            orientation = HORIZONTAL;
+            HashSet<String> set = new HashSet<>(a.tags);
+            set.addAll(b.tags);
+            tags = new ArrayList<>(set);
+        }
 
         public Photo(String aId, String aOrientation, List<String> aTags) {
             id = aId;
