@@ -1,14 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -72,6 +62,11 @@ public class Solution {
             return (int) this.getTags().stream().filter(aTags::contains).count();
         }
 
+        public int unionTags(Collection<String> aTags) {
+            return (int) (this.getTags().size() + aTags.size()
+                    - this.getTags().stream().filter(aTags::contains).count());
+        }
+
         public int tagCount() {
             return tags.size();
         }
@@ -90,6 +85,11 @@ public class Solution {
             if (!(aO instanceof Photo)) return false;
             Photo photo = (Photo) aO;
             return id.equals(photo.id);
+        }
+
+        @Override
+        public String toString() {
+            return id;
         }
 
         @Override
@@ -117,7 +117,19 @@ public class Solution {
 
     public List<String> solve() {
 
-        List<String> slides = new LinkedList<>();
+        List<Slide> listSlides = getListSlides();
+        List<String> results = new ArrayList<>();
+        results.add(String.valueOf(listSlides.size()));
+        for (Slide s : listSlides) {
+            results.add(s.photos.get(0)
+                    + (s.photos.size() > 1
+                    ? (" " + s.photos.get(1))
+                    : ""));
+        }
+
+
+
+/*        List<String> slides = new LinkedList<>();
         photos.sort(Comparator.comparingInt(Photo::tagCount));
 
         List<Photo> horizontalPhotos = byOrientation(HORIZONTAL);
@@ -148,7 +160,49 @@ public class Solution {
             } else {
                 // chosoe random
             }
+        }*/
+        return results;
+    }
+
+    public List<Slide> getListSlides() {
+        System.out.println("A slide was gotten");
+        List<Photo> vertPhotos = photos.stream().parallel()
+                .filter(p -> p.orientation.equals(VERTICAL))
+                .collect(Collectors.toList());
+        if (vertPhotos.size() < 2) {
+            return photos.stream().parallel()
+                    .map(p -> new Slide(p))
+                    .collect(Collectors.toList()); // EXIT early
         }
+
+        List<Slide> slides = new ArrayList<>();
+
+        while (vertPhotos.size() >= 2) {
+            Photo aPhoto = vertPhotos.get(0);
+
+            List<Photo> sortedByUnion = vertPhotos.stream()
+                    .limit(100)
+                    .sorted((a, b) -> a.unionTags(b.tags))
+                    .collect(Collectors.toList());
+            Photo bestBPhoto = sortedByUnion.get(sortedByUnion.size() - 1);
+
+            slides.add(new Slide(aPhoto, bestBPhoto));
+
+            vertPhotos.remove(aPhoto);
+            vertPhotos.remove(bestBPhoto);
+
+            if (vertPhotos.size() % 100 == 0) {
+                System.out.println(vertPhotos.size());
+            }
+        }
+
+        slides.addAll(photos.stream().parallel()
+                .filter(p -> p.orientation.equals(HORIZONTAL))
+                .map(p -> new Slide(p))
+                .collect(Collectors.toList()));
+        return slides.stream().parallel()
+                .sorted((a, b) -> b.score(a))
+                .collect(Collectors.toList());
     }
 
     private Photo middle(List<Photo> aPhotos) {
