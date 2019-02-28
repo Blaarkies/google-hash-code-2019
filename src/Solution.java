@@ -116,12 +116,10 @@ public class Solution {
     }
 
     public List<String> solve() {
-
         List<String> slides = new LinkedList<>();
         photos.sort(Comparator.comparingInt(Photo::tagCount));
 
-        List<Photo> horizontalPhotos = byOrientation(HORIZONTAL);
-        Photo photo = middle(horizontalPhotos);
+        Photo photo = middle(byOrientation(HORIZONTAL));
         this.photos.remove(photo);
         Slide slide = new Slide(photo);
         slides.add(slide.toString());
@@ -146,9 +144,22 @@ public class Solution {
                     }
                 }
             } else {
-                // chosoe random
+                List<Photo> hPhotos = byOrientation(HORIZONTAL);
+
+                if (hPhotos.isEmpty()) {
+                    break;
+                } else {
+                    photo = middle(hPhotos);
+                    hPhotos.remove(photo);
+                    slide = new Slide(photo);
+                    slides.add(slide.toString());
+                }
             }
         }
+
+        slides.add(0, String.valueOf(slides.size()));
+
+        return slides;
     }
 
     private Photo middle(List<Photo> aPhotos) {
