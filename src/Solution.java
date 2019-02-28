@@ -48,9 +48,9 @@ public class Solution {
             String orientation = input.next();
             int tagCount = input.nextInt();
 
-            List<String> tags = Arrays.asList(input.nextLine().split(" "));
+            List<String> tags = Arrays.asList(input.nextLine().trim().split(" "));
 
-            photos.add(new Photo(i, orientation, tags))
+            photos.add(new Photo(i, orientation, tags));
 
         }
     }
