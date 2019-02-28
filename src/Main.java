@@ -8,6 +8,10 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         solve("a_example");
+        solve("b_lovely_landscapes");
+        solve("c_memorable_moments");
+        solve("d_pet_pictures");
+        solve("e_shiny_selfies");
     }
 
     private static void solve(final String name) throws IOException {

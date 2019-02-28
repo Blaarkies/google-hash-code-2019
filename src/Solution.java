@@ -1,9 +1,13 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Solution {
 
@@ -11,11 +15,11 @@ public class Solution {
     static final String VERTICAL = "V";
 
     static class Photo {
-        int id;
+        String id;
         String orientation;
         List<String> tags;
 
-        public Photo(int aId, String aOrientation, List<String> aTags) {
+        public Photo(String aId, String aOrientation, List<String> aTags) {
             id = aId;
             orientation = aOrientation;
             tags = aTags;
@@ -26,9 +30,7 @@ public class Solution {
             if (this == aO) return true;
             if (!(aO instanceof Photo)) return false;
             Photo photo = (Photo) aO;
-            return id == photo.id &&
-                    Objects.equals(orientation, photo.orientation) &&
-                    Objects.equals(tags, photo.tags);
+            return id.equals(photo.id);
         }
 
         @Override
@@ -50,12 +52,36 @@ public class Solution {
 
             List<String> tags = Arrays.asList(input.nextLine().trim().split(" "));
 
-            photos.add(new Photo(i, orientation, tags));
+            photos.add(new Photo(String.valueOf(i), orientation, tags));
 
         }
     }
 
     public List<String> solve() {
-        return Collections.emptyList();
+       Collections.shuffle(photos);
+
+       Set<String> used = new HashSet<>();
+
+       List<String> slideshow = new LinkedList<>();
+
+        for (int i = 0, photosSize = photos.size(); i < photosSize; i++) {
+            Photo photo = photos.get(i);
+            if (photo.orientation.equals(HORIZONTAL)) {
+                slideshow.add(photo.id);
+            } else {
+                Optional<Photo> first = photos.subList(i + 1, photosSize).stream().filter(it -> it.orientation.equals(VERTICAL)).findFirst();
+
+                if (first.isPresent() && !used.contains(first.get().id)) {
+                    Photo photo1 = first.get();
+                    slideshow.add(photo.id + " " + photo1.id);
+                    used.add(photo.id);
+                    used.add(photo1.id);
+                }
+            }
+        }
+
+        slideshow.add(0, String.valueOf(slideshow.size()));
+
+        return slideshow;
     }
 }
