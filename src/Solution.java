@@ -3,10 +3,8 @@ import java.util.List;
 
 public class Solution {
 
-    private final List<String> input;
-
     public Solution(List<String> input) {
-        this.input = input;
+        //Do something with input
     }
 
     public List<String> solve() {

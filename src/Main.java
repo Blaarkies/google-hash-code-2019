@@ -26,9 +26,4 @@ public class Main {
 
         Files.write(Paths.get("output/problem1.out"), new Solution(input).solve());
     }
-
-    public static Integer distance(Point start, Point end) {
-        return Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
-    }
-
 }
