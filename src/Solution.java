@@ -1,7 +1,8 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -17,12 +18,22 @@ public class Solution {
     private static final String VERTICAL = "V";
 
     static class Slide {
+
         private final List<Photo> photos;
         private final Set<String> tags;
 
-        Slide(List<Photo> aPhotos) {
-            photos = aPhotos;
-            tags = photos.stream()
+        Slide(Photo aPhoto) {
+            photos = Collections.singletonList(aPhoto);
+            tags = tags();
+        }
+
+        Slide(Photo aPhoto1, Photo aPhoto2) {
+            photos = Arrays.asList(aPhoto1, aPhoto2);
+            tags = tags();
+        }
+
+        private Set<String> tags() {
+            return photos.stream()
                     .flatMap(it -> it.tags.stream())
                     .collect(Collectors.toSet());
         }
@@ -38,9 +49,15 @@ public class Solution {
 
             return Stream.of(commonTags, s1Unique, s2Unique).min(Integer::compareTo).get();
         }
+
+        @Override
+        public String toString() {
+            return photos.stream().map(it -> it.id).collect(Collectors.joining(" "));
+        }
     }
 
     static class Photo {
+
         String id;
         String orientation;
         List<String> tags;
@@ -48,6 +65,22 @@ public class Solution {
         public Photo(String aId, String aOrientation, List<String> aTags) {
             id = aId;
             orientation = aOrientation;
+            tags = aTags;
+        }
+
+        public int commonTags(Collection<String> aTags) {
+            return (int) this.getTags().stream().filter(aTags::contains).count();
+        }
+
+        public int tagCount() {
+            return tags.size();
+        }
+
+        public List<String> getTags() {
+            return tags;
+        }
+
+        public void setTags(List<String> aTags) {
             tags = aTags;
         }
 
@@ -72,42 +105,57 @@ public class Solution {
 
         photos = new ArrayList<>(picCount);
 
-        for (int i =0; i < picCount; i++) {
+        for (int i = 0; i < picCount; i++) {
             String orientation = input.next();
             int tagCount = input.nextInt();
 
             List<String> tags = Arrays.asList(input.nextLine().trim().split(" "));
 
             photos.add(new Photo(String.valueOf(i), orientation, tags));
-
         }
     }
 
     public List<String> solve() {
-       Collections.shuffle(photos);
 
-       Set<String> used = new HashSet<>();
+        List<String> slides = new LinkedList<>();
+        photos.sort(Comparator.comparingInt(Photo::tagCount));
 
-       List<String> slideshow = new LinkedList<>();
+        List<Photo> horizontalPhotos = byOrientation(HORIZONTAL);
+        Photo photo = middle(horizontalPhotos);
+        this.photos.remove(photo);
+        Slide slide = new Slide(photo);
+        slides.add(slide.toString());
 
-        for (int i = 0, photosSize = photos.size(); i < photosSize; i++) {
-            Photo photo = photos.get(i);
-            if (photo.orientation.equals(HORIZONTAL)) {
-                slideshow.add(photo.id);
-            } else if (!used.contains(photo.id)){
-                Optional<Photo> first = photos.subList(i + 1, photosSize).stream().filter(it -> it.orientation.equals(VERTICAL)).findFirst();
+        while (!this.photos.isEmpty()) {
+            final Set<String> tags = slide.getTags();
+            Optional<Photo> photo1 = this.photos.stream().filter(it -> it.commonTags(tags) > 0).findAny();
 
-                if (first.isPresent() && !used.contains(first.get().id)) {
-                    Photo photo1 = first.get();
-                    slideshow.add(photo.id + " " + photo1.id);
-                    used.add(photo.id);
-                    used.add(photo1.id);
+            if (photo1.isPresent()) {
+                Photo next = photo1.get();
+                photos.remove(next);
+                if (next.orientation.equals(HORIZONTAL)) {
+                    slide = new Slide(next);
+                    slides.add(slide.toString());
+                } else {
+                    List<Photo> photos = byOrientation(VERTICAL);
+                    if (photos.size() > 0) {
+                        Photo photo2 = middle(photos);
+                        photos.remove(photo2);
+                        slide = new Slide(next, photo2);
+                        slides.add(slide.toString());
+                    }
                 }
+            } else {
+                // chosoe random
             }
         }
+    }
 
-        slideshow.add(0, String.valueOf(slideshow.size()));
+    private Photo middle(List<Photo> aPhotos) {
+        return aPhotos.get(aPhotos.size() / 2);
+    }
 
-        return slideshow;
+    private List<Photo> byOrientation(String aHorizontal) {
+        return this.photos.stream().filter(it -> it.orientation.equals(aHorizontal)).collect(Collectors.toList());
     }
 }
