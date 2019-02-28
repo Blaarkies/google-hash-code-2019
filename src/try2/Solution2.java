@@ -1,3 +1,5 @@
+package try2;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,18 +19,18 @@ import java.util.stream.Stream;
 
 import static java.lang.Math.min;
 
-public class Solution {
+public class Solution2 {
 
     private static final String HORIZONTAL = "H";
     private static final String VERTICAL = "V";
     List<String> slides = new LinkedList<>();
-    List<Solution.Photo> photos;
-    Map<String, Solution.Photo> photosMap = new LinkedHashMap<>();
+    List<Photo> photos;
+    Map<String, Photo> photosMap = new LinkedHashMap<>();
 
-    public Solution(Scanner input) {
+    public Solution2(Scanner input) {
         int picCount = input.nextInt();
 
-        List<Solution.Photo> photos = new ArrayList<>(picCount);
+        List<Photo> photos = new ArrayList<>(picCount);
 
         for (int i = 0; i < picCount; i++) {
             String orientation = input.next();
@@ -36,7 +38,7 @@ public class Solution {
 
             List<String> tags = Arrays.asList(input.nextLine().trim().split(" "));
 
-            Solution.Photo photo = new Solution.Photo(String.valueOf(i), orientation, tags);
+            Photo photo = new Photo(String.valueOf(i), orientation, tags);
             photos.add(photo);
             photosMap.put(photo.getId(), photo);
         }
@@ -50,7 +52,7 @@ public class Solution {
 
     public List<String> solve() {
         List<String> photoIds = photos.stream().map(it -> it.id).collect(Collectors.toList());
-        Solution.Photo currentPhoto = photos.iterator().next();
+        Photo currentPhoto = photos.iterator().next();
         addSlide(currentPhoto);
         int maxSelectionSize = 250;
 
@@ -62,7 +64,7 @@ public class Solution {
             for (int i = 0; i < maxSelectionSize; ++i) {
                 int selectedIndex = ThreadLocalRandom.current().nextInt(photoIds.size());
                 String selectedId = photoIds.get(selectedIndex);
-                Solution.Photo selectedPhoto = photosMap.get(selectedId);
+                Photo selectedPhoto = photosMap.get(selectedId);
                 int selectedScore = currentPhoto.score(selectedPhoto);
 
                 if (selectedScore > bestScore) {
@@ -89,48 +91,48 @@ public class Solution {
         slides.add(0, String.valueOf(slides.size()));
     }
 
-    private List<Solution.Photo> safeSublist(int size) {
+    private List<Photo> safeSublist(int size) {
         return this.photos.subList(0, min(photos.size(), size));
     }
 
-    private Optional<Solution.Photo> getAny(String orientation) {
+    private Optional<Photo> getAny(String orientation) {
         return photos.parallelStream().filter(it -> it.orientation.equals(orientation)).findAny();
     }
 
-    private Solution.Slide addSlide(Solution.Photo... slidePhotos) {
-        Solution.Slide slide = new Solution.Slide(slidePhotos);
+    private Slide addSlide(Photo... slidePhotos) {
+        Slide slide = new Slide(slidePhotos);
 
-        for (Solution.Photo slidePhoto : slidePhotos) {
+        for (Photo slidePhoto : slidePhotos) {
             photos.remove(slidePhoto);
         }
         slides.add(slide.toString());
         return slide;
     }
 
-    private void addSlide(Solution.Photo slidePhoto) {
+    private void addSlide(Photo slidePhoto) {
         photos.remove(slidePhoto);
         slides.add(slidePhoto.getId());
     }
 
-    private Solution.Photo middle(List<Solution.Photo> aPhotos) {
+    private Photo middle(List<Photo> aPhotos) {
         return aPhotos.get(aPhotos.size() / 2);
     }
 
-    private Solution.Photo middle(SortedSet<Solution.Photo> aPhotos) {
-        Solution.Photo[] photos = aPhotos.toArray(new Solution.Photo[aPhotos.size()]);
+    private Photo middle(SortedSet<Photo> aPhotos) {
+        Photo[] photos = aPhotos.toArray(new Photo[aPhotos.size()]);
         return photos[aPhotos.size() / 2];
     }
 
-    private List<Solution.Photo> byOrientation(String aHorizontal) {
+    private List<Photo> byOrientation(String aHorizontal) {
         return this.photos.parallelStream().filter(it -> it.orientation.equals(aHorizontal)).collect(Collectors.toList());
     }
 
     static class Slide {
 
-        private final List<Solution.Photo> photos;
+        private final List<Photo> photos;
         private final Set<String> tags;
 
-        Slide(Solution.Photo... aPhoto) {
+        Slide(Photo... aPhoto) {
             photos = Arrays.asList(aPhoto);
             tags = tags();
         }
@@ -141,7 +143,7 @@ public class Solution {
                     .collect(Collectors.toSet());
         }
 
-        int score(Solution.Slide other) {
+        int score(Slide other) {
             int commonTags = (int) this.getTags().stream().filter(it -> other.getTags().contains(it)).count();
             int s1Unique = this.getTags().size() - commonTags;
             int s2Unique = other.getTags().size() - commonTags;
@@ -171,7 +173,7 @@ public class Solution {
             tags = aTags;
         }
 
-        int score(Solution.Photo other) {
+        int score(Photo other) {
             int commonTags = (int) this.getTags().stream().filter(it -> other.getTags().contains(it)).count();
             int s1Unique = this.getTags().size() - commonTags;
             int s2Unique = other.getTags().size() - commonTags;
@@ -207,8 +209,8 @@ public class Solution {
         @Override
         public boolean equals(Object aO) {
             if (this == aO) return true;
-            if (!(aO instanceof Solution.Photo)) return false;
-            Solution.Photo photo = (Solution.Photo) aO;
+            if (!(aO instanceof Photo)) return false;
+            Photo photo = (Photo) aO;
             return id.equals(photo.id);
         }
     }
