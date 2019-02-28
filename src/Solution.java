@@ -8,11 +8,37 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Solution {
 
-    static final String HORIZONTAL = "H";
-    static final String VERTICAL = "V";
+    private static final String HORIZONTAL = "H";
+    private static final String VERTICAL = "V";
+
+    static class Slide {
+        private final List<Photo> photos;
+        private final Set<String> tags;
+
+        Slide(List<Photo> aPhotos) {
+            photos = aPhotos;
+            tags = photos.stream()
+                    .flatMap(it -> it.tags.stream())
+                    .collect(Collectors.toSet());
+        }
+
+        Set<String> getTags() {
+            return tags;
+        }
+
+        int score(Slide other) {
+            int commonTags = (int) this.getTags().stream().filter(it -> other.getTags().contains(it)).count();
+            int s1Unique = this.getTags().size() - commonTags;
+            int s2Unique = other.getTags().size() - commonTags;
+
+            return Stream.of(commonTags, s1Unique, s2Unique).min(Integer::compareTo).get();
+        }
+    }
 
     static class Photo {
         String id;
@@ -35,7 +61,7 @@ public class Solution {
 
         @Override
         public int hashCode() {
-            return Objects.hash(id, orientation, tags);
+            return Objects.hash(id);
         }
     }
 
@@ -68,7 +94,7 @@ public class Solution {
             Photo photo = photos.get(i);
             if (photo.orientation.equals(HORIZONTAL)) {
                 slideshow.add(photo.id);
-            } else {
+            } else if (!used.contains(photo.id)){
                 Optional<Photo> first = photos.subList(i + 1, photosSize).stream().filter(it -> it.orientation.equals(VERTICAL)).findFirst();
 
                 if (first.isPresent() && !used.contains(first.get().id)) {
