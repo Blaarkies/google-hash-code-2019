@@ -1,3 +1,5 @@
+import Group.Group;
+
 import java.awt.*;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -14,16 +16,23 @@ public class Main {
     private static void solve(final String name) throws IOException {
         List<String> input = Files.readAllLines(Paths.get("input/" + name + ".in"));
 
-//        Scanner scanner = new Scanner(new FileInputStream("input.txt"));
-//
-//        int testCases = scanner.nextInt();
-//        for (int t = 0; t < testCases; t++) {
-//            int r = scanner.nextInt();
-//            int c = scanner.nextInt();
-//            int k = scanner.nextInt();
-//
-//        }
+        List<String> inputLines = Files.readAllLines(Paths.get("input/a_example.in"));
+        Group groups = inputLines.stream()
+                .map(il -> new Group(il));
 
-        Files.write(Paths.get("output/problem1.out"), new Solution(input).solve());
+
+//        Scanner scanner = new Scanner(new FileInputStream("input/a_example.in"));
+
+
+/*        int testCases = scanner.nextInt();
+        for (int t = 0; t < testCases; t++) {
+            int r = scanner.nextInt();
+            int c = scanner.nextInt();
+            int k = scanner.nextInt();
+
+        }*/
+
+        Files.write(Paths.get("output/problem1.txt"), inputLines);
+
     }
 }
