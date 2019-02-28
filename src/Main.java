@@ -7,15 +7,11 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-//        solve("a_example");
-//        solve("c_memorable_moments");
-
-        //Only horizontal
+        solve("a_example");
         solve("b_lovely_landscapes");
-//        solve("d_pet_pictures");
-
-        //Only vertical
-//        solve("e_shiny_selfies");
+        solve("c_memorable_moments");
+        solve("d_pet_pictures");
+        solve("e_shiny_selfies");
     }
 
     private static void solve(final String name) throws IOException {
@@ -24,6 +20,5 @@ public class Main {
 
         Solution solution = new Solution(scanner);
         Files.write(Paths.get("output/" + name + ".out"), solution.solve());
-        System.out.println("Solved: " + name);
     }
 }

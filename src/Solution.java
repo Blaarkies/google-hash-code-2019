@@ -1,5 +1,6 @@
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Solution {
@@ -118,9 +119,32 @@ public class Solution {
     public List<String> solve() {
 
         List<Slide> listSlides = getListSlides();
+
+        List<Slide> slidesResult = new ArrayList<>();
+        Slide slideA = listSlides.get(0);
+        slidesResult.add(slideA);
+        listSlides.remove(slideA);
+
+        while (listSlides.size() >= 2) {
+            slideA = slidesResult.get(slidesResult.size() - 1);
+            Slide finalSlideA = slideA;
+            List<Slide> sorted = listSlides.stream()
+                    .limit(100)
+                    .sorted(Comparator.comparingInt(a -> a.score(finalSlideA)))
+                    .collect(Collectors.toList());
+
+            Slide slideB = sorted.get(sorted.size() - 1);
+            slidesResult.add(slideB);
+            listSlides.remove(slideB);
+
+            if (listSlides.size() % 100 == 0) {
+                System.out.println("Slide " + listSlides.size());
+            }
+        }
+
         List<String> results = new ArrayList<>();
-        results.add(String.valueOf(listSlides.size()));
-        for (Slide s : listSlides) {
+        results.add(String.valueOf(slidesResult.size()));
+        for (Slide s : slidesResult) {
             results.add(s.photos.get(0)
                     + (s.photos.size() > 1
                     ? (" " + s.photos.get(1))
@@ -192,7 +216,7 @@ public class Solution {
             vertPhotos.remove(bestBPhoto);
 
             if (vertPhotos.size() % 100 == 0) {
-                System.out.println(vertPhotos.size());
+                System.out.println("Photo " + vertPhotos.size());
             }
         }
 
