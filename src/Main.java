@@ -6,6 +6,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -17,8 +19,9 @@ public class Main {
         List<String> input = Files.readAllLines(Paths.get("input/" + name + ".in"));
 
         List<String> inputLines = Files.readAllLines(Paths.get("input/a_example.in"));
-        Group groups = inputLines.stream()
-                .map(il -> new Group(il));
+        List<Group> groups = inputLines.stream()
+                .map(il -> new Group(il))
+                .collect(Collectors.toList());
 
 
 //        Scanner scanner = new Scanner(new FileInputStream("input/a_example.in"));
